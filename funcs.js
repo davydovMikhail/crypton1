@@ -1,4 +1,5 @@
 import Web4 from "@cryptonteam/web4"
+import BigNumber from "bignumber.js";
 var Web3 = require('web3');
 // var BigNumber = require('big-number');
 // import { ERC20 as ERC20Abi } from '../../abi'
@@ -114,8 +115,8 @@ export const getBalance = async (abi, token) => {
   )
   console.log(balance)
 
-  // balance = await new BigNumber(balance).shiftedBy(-decimals).toString()
-  // balance = new BigNumber(balance).toString()
+  balance = new BigNumber(balance).shiftedBy(-decimals).toString()
+  console.log('balance', balance.toString())
   return balance
 }
 
