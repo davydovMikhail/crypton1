@@ -1,6 +1,7 @@
 import Web4 from "@cryptonteam/web4"
 import BigNumber from "bignumber.js";
 var Web3 = require('web3');
+BigNumber.config({ EXPONENTIAL_AT: 60 });
 // var BigNumber = require('big-number');
 // import { ERC20 as ERC20Abi } from '../../abi'
 // import { ERC20 as ERC20Abi } from '/abi'
@@ -23,7 +24,7 @@ export const getUserAddress = async () => {
     }
     web3Wallet = new Web3(ethereum); // init web3
     if (await web3Wallet.eth.getCoinbase() === null) { // проверяем подключен ли metamask
-      await ethereum.enable(); // подключить metamask
+      await ethereum.enable(); // подключить metamask 
     }
 
     userAddress = await web3Wallet.eth.getCoinbase(); // получить адрес пользователя
@@ -36,7 +37,7 @@ export const getUserAddress = async () => {
 }
 
 
-
+let web4
 
 export const connectWallet = async () => {
 
@@ -58,7 +59,7 @@ export const connectWallet = async () => {
         return false;
       }
   
-      let web4 = new Web4();
+      web4 = new Web4();
       await web4.setProvider(ethereum, userAddress);
   
       return true;
@@ -120,3 +121,79 @@ export const getBalance = async (abi, token) => {
   return balance
 }
 
+export const approve = async (token, recipient, amount, abi, decimals) => {
+  try {
+      const { ethereum } = window;
+      web3Wallet = new Web3(ethereum);
+      await ethereum.enable();
+
+      web4 = new Web4();
+      await web4.setProvider(ethereum, userAddress);
+
+      const absErc20 = web4.getContractAbstraction(abi);
+      const inst = await absErc20.getInstance(token);
+      const total = new BigNumber(amount).shiftedBy(+decimals).toString();
+      await inst.approve(recipient, total);
+      return true;
+  } catch (err) {
+      console.log(err);
+      return false;
+  }
+};
+
+
+
+export const getAllowance = async (token, recipient, abi, decimals) => {
+  let allowance = await fetchContractData('allowance', abi, token, [userAddress, recipient])
+  allowance = new BigNumber(allowance).shiftedBy(-decimals).toString();
+
+  console.log(allowance)
+  return allowance
+}
+
+export const transfer = async (token, recipient, amount, abi, decimals) => {
+  try {
+      const { ethereum } = window;
+      web3Wallet = new Web3(ethereum);
+      await ethereum.enable();
+
+      web4 = new Web4();
+      await web4.setProvider(ethereum, userAddress);
+
+      const absErc20 = web4.getContractAbstraction(abi);
+      const inst = await absErc20.getInstance(token);
+      const total = new BigNumber(amount).shiftedBy(+decimals).toString();
+      await inst.transfer(recipient, total);
+      return true;
+  } catch (err) {
+      console.log(err);
+      return false;
+  }
+};
+
+
+export const getEvents = async (abi, token) => {
+  try {
+    const { ethereum } = window;
+    web3Wallet = new Web3(ethereum);
+    await ethereum.enable();
+
+    web4 = new Web4();
+    await web4.setProvider(ethereum, userAddress);
+
+    const absErc20 = web4.getContractAbstraction(abi);
+    const inst = await absErc20.getInstance(token);
+
+    let events = inst.contract.events.allEvents({
+      fromBlock: '7600000'
+    }, (error, result) => {
+      console.log("события",result);
+      console.log("события2",events);
+    });
+
+    return true;
+  } catch (err) {
+      console.log(err);
+      return false;
+  }
+}
