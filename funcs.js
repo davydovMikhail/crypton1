@@ -1,8 +1,8 @@
 import Web4 from "@cryptonteam/web4"
 var Web3 = require('web3');
-var BigNumber = require('big-number');
+// var BigNumber = require('big-number');
 // import { ERC20 as ERC20Abi } from '../../abi'
-import { ERC20 as ERC20Abi } from '/abi'
+// import { ERC20 as ERC20Abi } from '/abi'
 
 // const Web4 = require('@cryptonteam/web4');
 
@@ -114,22 +114,8 @@ export const getBalance = async (abi, token) => {
   )
   console.log(balance)
 
-  balance = await new BigNumber(balance).shiftedBy(-decimals).toString()
+  // balance = await new BigNumber(balance).shiftedBy(-decimals).toString()
   // balance = new BigNumber(balance).toString()
   return balance
 }
 
-export const start = async () => {
-  const exampleTokenAddress = '0x4b107a23361770534bd1839171bbf4b0eb56485c'
-  const userAddress = '0x300e5986013b20c5167933a4023f4044da90e823'
-  // const decimals = await fetchContractData('decimals', ERC20Abi, exampleTokenAddress)
-  let balance = await fetchContractData(
-    'balanceOf',
-    ERC20Abi,
-    exampleTokenAddress,
-    [userAddress]
-  )
-  console.log(balance)
-  balance = new BigNumber(balance).shiftedBy(-18).toString()
-  console.log('Баланс: ', balance)
-}
