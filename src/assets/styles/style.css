@@ -30,9 +30,6 @@ button:hover {
   padding: 10px;
   align-items: center;
 }
-.connect__enter {
-  margin: 10px;
-}
 .connect__button {
   width: 187px;
   height: 50px;
@@ -45,7 +42,7 @@ button:hover {
   border: none;
   color: #ffffff;
 }
-.connect__input {
+.amount__input {
   width: 450px;
   height: 50px;
   background: #f3f5fa;
@@ -70,10 +67,10 @@ button:hover {
   width: 130px;
   text-align: center;
 }
-.connect__input_amount {
+.amount__input_small {
   width: 800px;
 }
-.connect__input_recipient {
+.amount__input_big {
   width: 100%;
 }
 .recipient {

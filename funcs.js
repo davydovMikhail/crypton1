@@ -2,14 +2,9 @@ import Web4 from "@cryptonteam/web4"
 import BigNumber from "bignumber.js";
 var Web3 = require('web3');
 BigNumber.config({ EXPONENTIAL_AT: 60 });
-// var BigNumber = require('big-number');
-// import { ERC20 as ERC20Abi } from '../../abi'
-// import { ERC20 as ERC20Abi } from '/abi'
-
-// const Web4 = require('@cryptonteam/web4');
 
 
-// async connectWallet() {
+
 
 let userAddress
 let web3Wallet
@@ -28,7 +23,6 @@ export const getUserAddress = async () => {
     }
 
     userAddress = await web3Wallet.eth.getCoinbase(); // получить адрес пользователя
-    console.log(userAddress)
 
   } catch (err) {
     console.log(err);
@@ -52,7 +46,6 @@ export const connectWallet = async () => {
         await ethereum.enable(); // подключить metamask
       }
       userAddress = await web3Wallet.eth.getCoinbase(); // получить адрес пользователя
-      console.log(userAddress)
       let chainId = await web3Wallet.eth.net.getId(); // запись сети
       if (+chainId !== 4) {
         console.log('current project work on rinkeby network')
@@ -67,9 +60,7 @@ export const connectWallet = async () => {
       console.log(err);
       return false;
     }
-  
-  
-  
+
 }
 
 let web3Guest
@@ -105,19 +96,14 @@ export const fetchContractData = async (method, abi, address, params) => {
 
 export const getBalance = async (abi, token) => {
   const decimals = await fetchContractData('decimals', abi, token)
-  // userAddress = await web3Wallet.eth.getCoinbase();
-  console.log(decimals)
-  console.log(userAddress)
   let balance = await fetchContractData(
     'balanceOf',
     abi,
     token,
     [userAddress]
   )
-  console.log(balance)
 
   balance = new BigNumber(balance).shiftedBy(-decimals).toString()
-  console.log('balance', balance.toString())
   return balance
 }
 
@@ -147,7 +133,6 @@ export const getAllowance = async (token, recipient, abi, decimals) => {
   let allowance = await fetchContractData('allowance', abi, token, [userAddress, recipient])
   allowance = new BigNumber(allowance).shiftedBy(-decimals).toString();
 
-  console.log(allowance)
   return allowance
 }
 
