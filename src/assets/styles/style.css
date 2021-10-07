@@ -27,7 +27,7 @@ button:hover {
 .connect {
   display: flex;
   justify-content: flex-end;
-  padding: 10px;
+  padding: 10px 0;
   align-items: center;
 }
 .connect__button {

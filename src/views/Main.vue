@@ -1,13 +1,13 @@
 <template>
   <div class="main">
-<button @click="test1"></button>
     <div class="connect">
-      <button class="connect__button" @click="test">connect wallet</button>
+      <button class="connect__button" @click="handleConnectWallet">connect wallet</button>
     </div>
     <h2>Amount</h2>
     <div class="amount">
         <input class="amount__input amount__input_small" type="text" placeholder="Amount" v-model="amount">
-        <select class="amount__select" v-model="currentToken">
+        <select class="amount__select" v-model="currentToken"  >
+          <option  :value="currentToken" v-if="!currentToken.decimals">Choose valut</option>
           <option v-for="symbol in informationAboutTokens" :key="symbol.symbol" :value="symbol">{{symbol.symbol}}</option>
         </select>
     </div>
@@ -15,12 +15,12 @@
     <div class="recipient">
         <input class="amount__input amount__input_big" type="text" placeholder="Addres" v-model="recipient">
     </div>
-    <h3>Your balance: {{currentToken.bal }}  {{currentToken.symbol }}</h3>
-    <h3>Your allowance: {{allowance}}</h3>
-    <div class="buttons">
-        <button class="connect__button" @click="getAllow">Get allowance</button>
-        <button class="connect__button" @click="appr">Approve</button>
-        <button class="connect__button" @click="send">Transfer</button>
+    <h3>Your balance: {{currentToken.bal | filterBalance }}  {{currentToken.symbol }}</h3>
+    <h3>Your allowance: {{allowance | filterBalance}}</h3>
+    <div class="buttons" >
+        <button class="connect__button"  @click="handleGetAllowance">Get allowance</button>
+        <button class="connect__button" @click="handleApprove">Approve</button>
+        <button class="connect__button"  @click="handleTransfer">Transfer</button>
     </div>
   </div>
 </template>
@@ -35,8 +35,8 @@ import { connectWallet,
  getAllowance,
  transfer,
  getEvents
-  } from '../../funcs'
-import { ERC20 as ERC20Abi } from '../../abi'
+  } from '../../utils/funcs'
+import { ERC20 as ERC20Abi } from '../../utils/abi'
 
 
 
@@ -61,30 +61,45 @@ export default {
       allowance: "-"
     }
   },
-  async created() {
-    await connectNode()
-    await getUserAddress()
-    let aboutTokens = []
-    this.tokens.forEach(async function(t) {
-        let symbol = await fetchContractData('symbol', ERC20Abi, t)
-        let decimals = await fetchContractData('decimals', ERC20Abi, t)
-        let bal = await getBalance(ERC20Abi, t)
-        let obj = {
-          symbol,
-          decimals,
-          bal
-        }
-        aboutTokens.push(obj)
-    });
-    this.informationAboutTokens = aboutTokens
+  created() {
+    this.initWallet()
   },
-
-
+  filters: {
+    filterBalance(value) {
+      if(value === "NaN") {
+        return "connect wallet"
+      } else { return value }
+    }
+  },
+  watch: {
+    currentToken() {
+      this.allowance = "-"
+    }
+  },
   methods: {
-    test() {
-      connectWallet()
+    async initWallet() {
+      await connectNode()
+      await getUserAddress()
+      let aboutTokens = []
+      this.tokens.forEach(async function(token) {
+          let symbol = await fetchContractData('symbol', ERC20Abi, token)
+          let decimals = await fetchContractData('decimals', ERC20Abi, token)
+          let bal = await getBalance(ERC20Abi, token)
+          let obj = {
+            symbol,
+            decimals,
+            bal,
+            token
+          }
+          aboutTokens.push(obj)
+      });
+      this.informationAboutTokens = aboutTokens
     },
-    appr() {
+    async handleConnectWallet() {
+      await connectWallet()
+      this.initWallet()
+    },
+    handleApprove() {
       if(!this.currentToken.decimals) {
         this.$vToastify.info("Select token")
       } else if(!this.amount) {
@@ -92,22 +107,20 @@ export default {
       } else if(!this.recipient) {
         this.$vToastify.info("Fill in the field with the recipient")
       } else {
-        let index = this.informationAboutTokens.indexOf(this.currentToken)
-        approve(this.tokens[index], this.recipient, this.amount, ERC20Abi, this.currentToken.decimals)
+        approve(this.currentToken.token, this.recipient, this.amount, ERC20Abi, this.currentToken.decimals)
       }
     },
-    getAllow() {
+    handleGetAllowance() {
       if(!this.currentToken.decimals) {
         this.$vToastify.info("Select token")
       } else if(!this.recipient) {
         this.$vToastify.info("Fill in the field with the recipient")
       } else {
-        let index = this.informationAboutTokens.indexOf(this.currentToken)
-        getAllowance(this.tokens[index], this.recipient, ERC20Abi, this.currentToken.decimals).then((result) => {this.allowance = result})
+        getAllowance(this.currentToken.token, this.recipient, ERC20Abi, this.currentToken.decimals).then((result) => {this.allowance = result})
       }
       
     },
-    send() {
+    handleTransfer() {
       if(!this.currentToken.decimals) {
         this.$vToastify.info("Select token")
       } else if(!this.amount) {
@@ -115,8 +128,7 @@ export default {
       } else if(!this.recipient) {
         this.$vToastify.info("Fill in the field with the recipient")
       } else {
-        let index = this.informationAboutTokens.indexOf(this.currentToken)
-        transfer(this.tokens[index], this.recipient, this.amount, ERC20Abi, this.currentToken.decimals)
+        transfer(this.currentToken.token, this.recipient, this.amount, ERC20Abi, this.currentToken.decimals)
       }
     },
     test1() {

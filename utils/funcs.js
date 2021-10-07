@@ -3,25 +3,17 @@ import BigNumber from "bignumber.js";
 var Web3 = require('web3');
 BigNumber.config({ EXPONENTIAL_AT: 60 });
 
-
-
-
 let userAddress
 let web3Wallet
-
+let web3Guest
+let web4
 
 export const getUserAddress = async () => {
   try {
     const { ethereum } = window; // ethereum - metamask
-    if (!ethereum) {
-      console.log('metamask is not install')
-      return false;
-    }
+    
     web3Wallet = new Web3(ethereum); // init web3
-    if (await web3Wallet.eth.getCoinbase() === null) { // проверяем подключен ли metamask
-      await ethereum.enable(); // подключить metamask 
-    }
-
+   
     userAddress = await web3Wallet.eth.getCoinbase(); // получить адрес пользователя
 
   } catch (err) {
@@ -29,9 +21,6 @@ export const getUserAddress = async () => {
     return false;
   }
 }
-
-
-let web4
 
 export const connectWallet = async () => {
 
@@ -63,8 +52,6 @@ export const connectWallet = async () => {
 
 }
 
-let web3Guest
-
 export const connectNode = () => {
     try {
       let bscUrl
@@ -81,7 +68,6 @@ export const connectNode = () => {
     }
   }
 
-
 export const fetchContractData = async (method, abi, address, params) => {
     try {
       const contract = new web3Guest.eth.Contract(abi, address)
@@ -92,7 +78,6 @@ export const fetchContractData = async (method, abi, address, params) => {
       return ''
     }
   } 
-
 
 export const getBalance = async (abi, token) => {
   const decimals = await fetchContractData('decimals', abi, token)
@@ -127,12 +112,9 @@ export const approve = async (token, recipient, amount, abi, decimals) => {
   }
 };
 
-
-
 export const getAllowance = async (token, recipient, abi, decimals) => {
   let allowance = await fetchContractData('allowance', abi, token, [userAddress, recipient])
   allowance = new BigNumber(allowance).shiftedBy(-decimals).toString();
-
   return allowance
 }
 
@@ -156,7 +138,6 @@ export const transfer = async (token, recipient, amount, abi, decimals) => {
   }
 };
 
-
 export const getEvents = async (abi, token) => {
   try {
     const { ethereum } = window;
@@ -170,7 +151,10 @@ export const getEvents = async (abi, token) => {
     const inst = await absErc20.getInstance(token);
 
     let events = inst.contract.events.allEvents({
-      fromBlock: '7600000'
+      fromBlock: '7600000',
+      addresses: userAddress
+      // to: userAddress,
+      // from: userAddress
     }, (error, result) => {
       console.log("события",result);
       console.log("события2",events);
