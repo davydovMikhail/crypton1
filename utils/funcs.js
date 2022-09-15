@@ -56,11 +56,11 @@ export const connectNode = () => {
     try {
       let bscUrl
       if (process.env.IS_MAINNET === 'true') {
-        bscUrl = 'https://rinkeby.infura.io/v3/bf6438abd38f4772a8e9f86569452673'
+        bscUrl = 'https://rpc.ankr.com/eth_rinkeby'
       } else {
-        bscUrl = 'wss://rinkeby.infura.io/ws/v3/bf6438abd38f4772a8e9f86569452673'
+        bscUrl = 'https://rpc.ankr.com/eth_rinkeby'
       }
-      const provider = new Web3.providers.WebsocketProvider(bscUrl)
+      const provider = new Web3.providers.HttpProvider(bscUrl)
       web3Guest = new Web3(provider)
       return true
     } catch (e) {
@@ -137,32 +137,3 @@ export const transfer = async (token, recipient, amount, abi, decimals) => {
       return false;
   }
 };
-
-export const getEvents = async (abi, token) => {
-  try {
-    const { ethereum } = window;
-    web3Wallet = new Web3(ethereum);
-    await ethereum.enable();
-
-    web4 = new Web4();
-    await web4.setProvider(ethereum, userAddress);
-
-    const absErc20 = web4.getContractAbstraction(abi);
-    const inst = await absErc20.getInstance(token);
-
-    let events = inst.contract.events.allEvents({
-      fromBlock: '7600000',
-      addresses: userAddress
-      // to: userAddress,
-      // from: userAddress
-    }, (error, result) => {
-      console.log("события",result);
-      console.log("события2",events);
-    });
-
-    return true;
-  } catch (err) {
-      console.log(err);
-      return false;
-  }
-}

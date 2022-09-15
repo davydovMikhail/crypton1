@@ -33,8 +33,7 @@ import { connectWallet,
  getUserAddress,
  approve,
  getAllowance,
- transfer,
- getEvents
+ transfer
   } from '../../utils/funcs'
 import { ERC20 as ERC20Abi } from '../../utils/abi'
 
@@ -45,10 +44,9 @@ export default {
   data() {
     return {
       tokens: [
-        '0x4b107a23361770534bd1839171bbf4b0eb56485c',
-        '0xc13da4146d381c7032ca1ed6050024b4e324f4ef',
-        '0x8d0c36c8842d1dc9e49fbd31b81623c1902b7819',
-        '0xa364f66f40b8117bbdb772c13ca6a3d36fe95b13'
+        '0x5255b96DD5c33b9A6a1746bfCcC66334a71c51B2',
+        '0xb4f531bc6C3e39CF9B41eda74D50bE39896680b2',
+        '0xf10396b579BF2164fe6fdB76B9D1030377D11Fd2'
       ],     
       currentToken: {
         bal: "-",
@@ -130,10 +128,6 @@ export default {
       } else {
         transfer(this.currentToken.token, this.recipient, this.amount, ERC20Abi, this.currentToken.decimals)
       }
-    },
-    test1() {
-      let index = this.informationAboutTokens.indexOf(this.currentToken)
-      getEvents(ERC20Abi, this.tokens[index])
     }
   },
   
